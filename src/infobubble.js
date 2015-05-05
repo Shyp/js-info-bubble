@@ -94,6 +94,14 @@ function InfoBubble(opt_options) {
     options['closeSrc'] = this.CLOSE_SRC_;
   }
 
+  if (options['pixelOffset'] == undefined) {
+    options['pixelOffset'] = this.PIXEL_OFFSET_;
+  }
+
+  if (options['overflow'] == undefined) {
+    options['overflow'] = this.OVERFLOW_;
+  }
+
   this.buildDom_();
   this.setValues(options);
 }
@@ -187,6 +195,20 @@ InfoBubble.prototype.BACKGROUND_COLOR_ = '#fff';
 InfoBubble.prototype.CLOSE_SRC_ = 'https://maps.gstatic.com/intl/en_us/mapfiles/iw_close.gif';
 
 /**
+ * Default pixel offset value
+ * @const
+ * @private
+ */
+InfoBubble.prototype.PIXEL_OFFSET_ = new google.maps.Size(0, 0);
+
+/**
+ * Default overflow style
+ * @const
+ * @private
+ */
+InfoBubble.prototype.OVERFLOW_ = 'auto';
+
+/**
  * Extends a objects prototype by anothers.
  *
  * @param {Object} obj1 The object to be extended.
@@ -232,8 +254,6 @@ InfoBubble.prototype.buildDom_ = function() {
 
   // Content area
   var contentContainer = this.contentContainer_ = document.createElement('DIV');
-  contentContainer.style['overflowX'] = 'auto';
-  contentContainer.style['overflowY'] = 'auto';
   contentContainer.style['cursor'] = 'default';
   contentContainer.style['clear'] = 'both';
   contentContainer.style['position'] = 'relative';
@@ -905,15 +925,15 @@ InfoBubble.prototype.draw = function() {
     return;
   }
 
-  // Adjust for the height of the info bubble
-  var top = pos.y - (height + arrowSize);
+  // Adjust for the height of the info bubble, and a pixel offset value if provided.
+  var top = pos.y - (height + arrowSize) + this.get('pixelOffset').height;
 
   if (anchorHeight) {
     // If there is an anchor then include the height
     top -= anchorHeight;
   }
 
-  var left = pos.x - (width * arrowPosition);
+  var left = pos.x - (width * arrowPosition) + this.get('pixelOffset').width;
 
   this.bubble_.style['top'] = this.px(top);
   this.bubble_.style['left'] = this.px(left);
@@ -1460,6 +1480,24 @@ InfoBubble.prototype.minHeight_changed = function() {
 };
 InfoBubble.prototype['minHeight_changed'] =
     InfoBubble.prototype.minHeight_changed;
+
+
+/**
+ * Set the overflow style of the InfoBubble
+ *
+ * @param {string} the overflow style
+ */
+InfoBubble.prototype.setOverflow = function(overflow) {
+  this.set('overflow', overflow);
+};
+
+/**
+ * overflow changed MVC callback
+ */
+InfoBubble.prototype.overflow_changed = function() {
+  this.contentContainer_.style.overflowX = this.overflow;
+  this.contentContainer_.style.overflowY = this.overflow;
+};
 
 
 /**
